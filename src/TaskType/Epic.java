@@ -1,53 +1,34 @@
 package TaskType;
 
-import java.util.ArrayList;
+
 import java.util.List;
 
 public class Epic extends Task {
-    List<Subtask> subtasks = new ArrayList<>();
+    List<Integer> subtasksID;
 
-    public Epic(int id, String name, String description, List<Subtask> subtasks) {
+    public Epic(Integer id, String name, String description, List<Integer> subtasksID) {
         super(id, name, description, Status.NEW);
-        this.subtasks = subtasks;
+        this.subtasksID = subtasksID;
     }
 
-    public List<Subtask> getSubtasks() {
-        return subtasks;
+
+    public List<Integer> getSubtasksID() {
+        return subtasksID;
     }
 
-    public void setSubtasks(List<Subtask> subtasks) {
-        this.subtasks = subtasks;
+    public void setSubtasksID(List subtasksID) {
+        this.subtasksID = subtasksID;
     }
+
+
 
     @Override
-    public void setStatus(Status status) {
-
-    }
-
-    public void updateStatus() {
-        boolean isNew = true;
-        for (Subtask subtask : subtasks) {
-            isNew = isNew && Status.NEW.equals(subtask.getStatus());
-            if (!isNew) {
-                break;
-            }
-        }
-        if (subtasks.isEmpty() || isNew) {
-            this.setStatus(Status.NEW);
-        }
-
-        boolean isDone = true;
-        for (Subtask subtask : subtasks) {
-            isDone = isDone && Status.DONE.equals(subtask.getStatus());
-
-            if (!isDone) {
-                break;
-            }
-        }
-
-        if (isDone) {
-            this.setStatus(Status.DONE);
-        }
-        this.setStatus(Status.IN_PROGRESS);
+    public String toString() {
+        return "Epic{" +
+                "id=" + getId() +
+                ", name='" + getName() + '\'' +
+                ", description='" + getDescription() + '\'' +
+                ", status=" + getStatus() +
+                '}';
     }
 }
