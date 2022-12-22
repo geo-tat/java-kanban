@@ -1,8 +1,9 @@
-import Manager.Manager;
+import Manager.*;
 import TaskType.Epic;
 import TaskType.Status;
 import TaskType.Subtask;
 import TaskType.Task;
+
 import java.util.ArrayList;
 
 
@@ -11,8 +12,9 @@ public class Main {
 
     public static void main(String[] args) {
 
-        System.out.println("Поехали!");
-        Manager manager = new Manager();
+        TaskManager manager = new InMemoryTaskManager();
+        HistoryManager historyManager = new InMemoryHistoryManager();
+
         Epic epic01 = new Epic(0, "Make breakfast", "Maybe eggs?", new ArrayList<>());
 
         Task task01 = new Task(0, "Wake up", "At 8:00", Status.NEW);
@@ -30,29 +32,11 @@ public class Main {
         manager.createSubtask(subtask02);
         manager.createSubtask(subtask03);
 
-        System.out.println(manager.getTasks());
-        System.out.println(manager.getEpics());
-        System.out.println(manager.getSubtasks());
+        System.out.println(manager.getTaskById(2));
+        System.out.println(manager.getEpicById(1));
+        System.out.println(manager.getSubtaskById(6));
+        System.out.println(manager.getSubtaskById(7));
+        System.out.println(manager.getHistory());
 
-        task01.setStatus(Status.DONE);
-        subtask02.setStatus(Status.IN_PROGRESS);
-        subtask03.setStatus(Status.IN_PROGRESS);
-        subtask01.setStatus(Status.DONE);
-
-        manager.updateTask(task01);
-        manager.updateSubtask(subtask02);
-        manager.updateSubtask(subtask03);
-        manager.updateSubtask(subtask01);
-
-        System.out.println(manager.getTasks());
-        System.out.println(manager.getEpics());
-        System.out.println(manager.getSubtasks());
-
-        manager.removeTaskById(3);
-        manager.removeSubtaskById(4);
-
-        System.out.println(manager.getTasks());
-        System.out.println(manager.getEpics());
-        System.out.println(manager.getSubtasks());
     }
 }
