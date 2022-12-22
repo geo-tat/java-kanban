@@ -12,8 +12,8 @@ public class Main {
 
     public static void main(String[] args) {
 
-        TaskManager manager = new InMemoryTaskManager();
-        HistoryManager historyManager = new InMemoryHistoryManager();
+        TaskManager manager = Managers.getDefault();
+
 
         Epic epic01 = new Epic(0, "Make breakfast", "Maybe eggs?", new ArrayList<>());
 
@@ -32,11 +32,12 @@ public class Main {
         manager.createSubtask(subtask02);
         manager.createSubtask(subtask03);
 
+
         System.out.println(manager.getTaskById(2));
         System.out.println(manager.getEpicById(1));
         System.out.println(manager.getSubtaskById(6));
         System.out.println(manager.getSubtaskById(7));
         System.out.println(manager.getHistory());
-
+        System.out.println(manager.getSubtasksForEpic(4));
     }
 }
