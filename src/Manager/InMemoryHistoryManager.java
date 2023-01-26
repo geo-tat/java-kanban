@@ -6,12 +6,12 @@ import java.util.*;
 import java.util.LinkedList;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private final LinkedList<Task> history = new LinkedList<>();
     private final CustomLinkedList<Task> customLinkedList = new CustomLinkedList<>();
 
     @Override
     public void add(Task task) {
-        if (customLinkedList.history.containsKey(task.getId())) {
+        Node<Task> node = customLinkedList.history.get(task.getId());
+        if (node != null) {
             customLinkedList.removeNode(customLinkedList.history.get(task.getId()));
             customLinkedList.linkLast(task);
         } else {
@@ -42,7 +42,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         private Node<T> head;
         private Node<T> tail;
         private final HashMap<Integer, Node<T>> history = new HashMap<>();
-        private int size = 0;
+        private int size;
 
 
         public void linkLast(Task task) {
@@ -75,7 +75,6 @@ public class InMemoryHistoryManager implements HistoryManager {
 
         public void removeNode(Node<T> node) {
             if (node != null) {
-                final Task x = node.task;
                 final Node<T> next = node.next;
                 final Node<T> prev = node.prev;
                 node.task = null;
