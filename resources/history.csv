@@ -1,0 +1,9 @@
+id,type,name,status,description,epic
+2,TASK,Wake up,NEW,ТАСК 1
+3,TASK,Read news,NEW,ТАСК 2
+1,EPIC,Make breakfast,NEW,ПОЛНЫЙ ЭПИК
+4,EPIC,Work,NEW,ПУСТОЙ ЭПИК
+5,SUBTASK,Buy eggs,NEW,САБТАСК 1,1
+6,SUBTASK,update method,NEW,САБТАСК 2,1
+7,SUBTASK,code test,NEW,САБТАСК 3,1
+
