@@ -77,17 +77,19 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 String[] words = line.split(",");
                 if (words[1].equals("TASK")) {
                     Task task = fromString(line);
-                    manager.createTask(task);
+                    manager.tasks.put(task.getId(), task);
                     continue;
                 }
                 if (words[1].equals("SUBTASK")) {
                     Subtask subtask = (Subtask) fromString(line);
-                    manager.createSubtask(subtask);
+                    manager.subtasks.put(subtask.getId(), subtask);
+                    manager.epics.get(subtask.getEpicID()).getSubtasksID().add(subtask.getId());
+                    manager.updateEpicStatus(subtask.getEpicID());
                     continue;
                 }
                 if (words[1].equals("EPIC")) {
                     Epic epic = (Epic) fromString(line);
-                    manager.createEpic(epic);
+                    manager.epics.put(epic.getId(),epic);
                 }
             }
 
@@ -171,19 +173,24 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         System.out.println(managerLoad.getSubtasks());
         System.out.println("WELL DONE");
 
+        TaskManager manager1 = Managers.getDefault();
+        Task task99 = new Task(0, "Read news", "ТАСК 99", Status.NEW);
+        manager1.createTask(task99);
+        System.out.println(manager1.getTaskById(8));
+
     }
 
-    public String stringToCsv (Task task) {
+    private static String stringToCsv (Task task) {
         return task.getId() + "," + Type.TASK + "," + task.getName() + "," + task.getStatus() + ","
                 + task.getDescription();
     }
 
-    public String stringToCsv(Subtask subtask) {
+    private static String stringToCsv(Subtask subtask) {
         return subtask.getId() + "," + Type.SUBTASK + "," + subtask.getName() + "," + subtask.getStatus()
                 + "," + subtask.getDescription() + "," + subtask.getEpicID();
     }
 
-    public String stringToCsv(Epic epic) {
+    private static String stringToCsv(Epic epic) {
         return epic.getId() + "," + Type.EPIC + "," + epic.getName() + "," + epic.getStatus() + ","
                 + epic.getDescription();
 

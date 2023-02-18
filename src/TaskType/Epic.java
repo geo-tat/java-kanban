@@ -21,22 +21,19 @@ public class Epic extends Task {
     }
 
 
-
     @Override
     public String toString() {
-        return getId() + "," + Type.EPIC + "," + getName() + "," + getStatus() + "," + getDescription();
-
-    }
-}
-
-// old toString
-/*
-public String toString() {
         return "Epic{" +
                 "id=" + getId() +
                 ", name='" + getName() + '\'' +
                 ", description='" + getDescription() + '\'' +
                 ", status=" + getStatus() +
                 '}';
+    }
+}
+
+// old toString
+/*
+
     }
  */
