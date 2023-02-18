@@ -8,7 +8,7 @@ import java.util.List;
 
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
-    static File path;
+     File path;
 
     public FileBackedTasksManager(File path) {
         this.path = path;
@@ -72,25 +72,36 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                             manager.historyManager.add(manager.epics.get(id));
                         }
                     }
+
                     break;
                 }
                 String[] words = line.split(",");
+                int loadID = 0;
                 if (words[1].equals("TASK")) {
                     Task task = fromString(line);
                     manager.tasks.put(task.getId(), task);
+                    if(task.getId() > loadID) {
+                        loadID = task.getId();
+                    }
                     continue;
                 }
                 if (words[1].equals("SUBTASK")) {
                     Subtask subtask = (Subtask) fromString(line);
                     manager.subtasks.put(subtask.getId(), subtask);
                     manager.epics.get(subtask.getEpicID()).getSubtasksID().add(subtask.getId());
-                    manager.updateEpicStatus(subtask.getEpicID());
+                    if(subtask.getId() > loadID) {
+                        loadID = subtask.getId();
+                    }
                     continue;
                 }
                 if (words[1].equals("EPIC")) {
                     Epic epic = (Epic) fromString(line);
                     manager.epics.put(epic.getId(),epic);
+                    if(epic.getId() > loadID) {
+                        loadID = epic.getId();
+                    }
                 }
+                manager.currentID = loadID;
             }
 
 
@@ -140,6 +151,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     public static void main(String[] args) {
+
         TaskManager manager = Managers.getDefaultFile(new File("resources\\history.csv"));
 
         Epic epic01 = new Epic(0, "Make breakfast", "ПОЛНЫЙ ЭПИК", Status.NEW, new ArrayList<>());   // 1
@@ -173,10 +185,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         System.out.println(managerLoad.getSubtasks());
         System.out.println("WELL DONE");
 
-        TaskManager manager1 = Managers.getDefault();
-        Task task99 = new Task(0, "Read news", "ТАСК 99", Status.NEW);
-        manager1.createTask(task99);
-        System.out.println(manager1.getTaskById(8));
+
 
     }
 

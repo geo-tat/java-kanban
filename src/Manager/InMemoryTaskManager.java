@@ -9,7 +9,7 @@ import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    protected static int currentID;
+    protected  int currentID;
 
     protected final Map<Integer, Task> tasks = new HashMap<>();
     protected final Map<Integer, Epic> epics = new HashMap<>();
