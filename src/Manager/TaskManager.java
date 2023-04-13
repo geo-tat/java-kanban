@@ -10,7 +10,8 @@ import java.util.List;
 
 public interface TaskManager {
 
-
+    List<Task> getPrioritizedTasks();
+    boolean isValid(Task task);
     List<Task> getHistory();
 
     List<Task> getTasks();
@@ -37,11 +38,11 @@ public interface TaskManager {
 
     Epic createEpic(Epic epic);
 
-    void updateTask(Task task);
+    boolean updateTask(Task task);
 
-    void updateSubtask(Subtask subtask);
+    boolean updateSubtask(Subtask subtask);
 
-    void updateEpic(Epic epic);
+    boolean updateEpic(Epic epic);
 
     boolean removeTaskById(int id);
 
