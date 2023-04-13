@@ -1,10 +1,9 @@
-package Manager;
+package manager;
 
-import TaskType.Epic;
-import TaskType.Status;
-import TaskType.Subtask;
-import TaskType.Task;
-import org.junit.jupiter.api.Assertions;
+import taskType.Epic;
+import taskType.Status;
+import taskType.Subtask;
+import taskType.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,22 +12,22 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class InMemoryHistoryManagerTest extends HistoryManagerTest<InMemoryHistoryManager> {
+class InMemoryHistoryManagerTest {
 
+    Task task1 = new Task(0, "TASK-1", "description", Status.NEW);
+    HistoryManager manager;
     @BeforeEach
     void setUp() {
         manager = new InMemoryHistoryManager();
-        HistoryManager manager1 = Managers.getDefaultHistory();
     }
 
     @Test
     void addWhenEmptyList() {
         // Given
-        Task task = new Task(1, "task", "description", Status.NEW);
         final List<Task> list = new ArrayList<>();
-        list.add(task);
+        list.add(task1);
         // When
-        manager.add(task);
+        manager.add(task1);
         // Then
         assertEquals(list, manager.getHistory());
     }
@@ -36,12 +35,11 @@ class InMemoryHistoryManagerTest extends HistoryManagerTest<InMemoryHistoryManag
     @Test
     void addWhenDoubleTask() {
         // Given
-        Task task = new Task(1, "task", "description", Status.NEW);
         final List<Task> list = new ArrayList<>();
-        list.add(task);
+        list.add(task1);
         // When
-        manager.add(task);
-        manager.add(task);
+        manager.add(task1);
+        manager.add(task1);
         // Then
         assertEquals(list, manager.getHistory());
     }
@@ -49,12 +47,12 @@ class InMemoryHistoryManagerTest extends HistoryManagerTest<InMemoryHistoryManag
     @Test
     void remove() {
         // Given
-        Task task = new Task(1, "task", "description", Status.NEW);
-        Task task2 = new Task(2, "task", "description", Status.NEW);
-        Epic epic = new Epic(3, "EPIC", "AAAbbbYYY", Status.NEW, new ArrayList<>());
-        Subtask sub1 = new Subtask(4, "sub-1", "something", Status.NEW, 3);
-        Subtask sub2 = new Subtask(5, "Sub-2", "something", Status.NEW, 1);
-        Task task3 = new Task(6, "Task03", "something", Status.NEW);
+        Task task = new Task(1, "Task-1", "description", Status.NEW);
+        Task task2 = new Task(2, "Task-2", "description", Status.NEW);
+        Epic epic = new Epic(3, "Epic-1", "description", Status.NEW, new ArrayList<>());
+        Subtask sub1 = new Subtask(4, "Sub-1", "description", Status.NEW, 3);
+        Subtask sub2 = new Subtask(5, "Sub-2", "description", Status.NEW, 1);
+        Task task3 = new Task(6, "Task-3", "description", Status.NEW);
         final List<Task> list = new ArrayList<>(List.of(task, task2, epic, sub1, sub2, task3));
         manager.add(task);
         manager.add(task2);
@@ -93,11 +91,11 @@ class InMemoryHistoryManagerTest extends HistoryManagerTest<InMemoryHistoryManag
     @Test
     void shouldGetHistory() {
         // Given
-        Task task2 = new Task(2, "task", "description", Status.NEW);
-        Epic epic = new Epic(3, "EPIC", "AAAbbbYYY", Status.NEW, new ArrayList<>());
-        Subtask sub1 = new Subtask(4, "sub-1", "something", Status.NEW, 3);
-        List<Task> list = new ArrayList<>(List.of(task2,epic,sub1));
-        manager.add(task2);
+        Task task1 = new Task(2, "Task-1", "description", Status.NEW);
+        Epic epic = new Epic(3, "Epic-1", "description", Status.NEW, new ArrayList<>());
+        Subtask sub1 = new Subtask(4, "Sub-1", "description", Status.NEW, 3);
+        List<Task> list = new ArrayList<>(List.of(task1,epic,sub1));
+        manager.add(task1);
         manager.add(epic);
         manager.add(sub1);
         // When

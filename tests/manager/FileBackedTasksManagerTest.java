@@ -1,14 +1,11 @@
-package Manager;
+package manager;
 
-import TaskType.Epic;
-import TaskType.Status;
-import TaskType.Subtask;
-import TaskType.Task;
+import taskType.Epic;
+import taskType.Subtask;
+import taskType.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.io.File;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,28 +16,23 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
 
     @BeforeEach
     void setUp() {
-
         manager = new FileBackedTasksManager(path);
     }
 
     @Test
     void save() {
         // Given
-        Task task = new Task(0, "task-1", "something", Status.NEW);
-        Epic epic = new Epic(0, "epic-1", "description", Status.NEW, new ArrayList<>());
-        Subtask sub = new Subtask(0, "sub1", "description", Status.NEW, 2);
         // When
-        manager.createTask(task);
+        manager.createTask(task1);
         manager.getTaskById(1);
-        manager.createEpic(epic);
-        manager.createSubtask(sub);
+        manager.createEpic(epic1);
+        manager.createSubtask(sub4);
         manager.getEpicById(2);
         final List<Task> historyTest = manager.getHistory();
-        final List<Task> tasksCheck = List.of(task);
-        final List<Subtask> subCheck = List.of(sub);
-        final List<Epic> epicCheck = List.of(epic);
+        final List<Task> tasksCheck = List.of(task1);
+        final List<Subtask> subCheck = List.of(sub4);
+        final List<Epic> epicCheck = List.of(epic1);
         // Then
-
         FileBackedTasksManager loadManager = FileBackedTasksManager.loadFromFile(path);
        final List<Task> loadList = loadManager.getHistory();
         assertEquals(historyTest, loadManager.getHistory());
@@ -55,11 +47,9 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
     @Test
     void loadFromFileWhenEmpty() {
         // Given
-
         // When
         manager.save();
         // Then
-
         FileBackedTasksManager loadManager = FileBackedTasksManager.loadFromFile(path);
         final List<Task> loadList = loadManager.getHistory();
         assertNotNull(loadList);
@@ -71,13 +61,11 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
     @Test
     void loadWhenOnlyEpic() {
         // Given
-        Epic epic = new Epic(0, "epic-1", "description", Status.NEW, new ArrayList<>());
-        manager.createEpic(epic);
+        manager.createEpic(epic1);
         manager.getEpicById(1);
-        List<Epic>epicCheck = List.of(epic);
+        List<Epic>epicCheck = List.of(epic1);
         // When
-        FileBackedTasksManager loadManager = FileBackedTasksManager.loadFromFile(path);
-        final List<Epic> epicLoad = loadManager.getEpics();
+        FileBackedTasksManager loadManager = FileBackedTasksManager.loadFromFile(path);final List<Epic> epicLoad = loadManager.getEpics();
 
         // Then
         assertNotNull(loadManager);
@@ -87,16 +75,12 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
     @Test
     void loadWhenNoHistory() {
         // Given
-        Task task = new Task(0, "task-1", "something", Status.NEW);
-        Epic epic = new Epic(0, "epic-1", "description", Status.NEW, new ArrayList<>());
-        Subtask sub = new Subtask(0, "sub1", "description", Status.NEW, 2);
-
-        manager.createTask(task);
-        manager.createEpic(epic);
-        manager.createSubtask(sub);
-        final List<Task> tasksCheck = List.of(task);
-        final List<Subtask> subCheck = List.of(sub);
-        final List<Epic> epicCheck = List.of(epic);
+        manager.createEpic(epic1);
+        manager.createTask(task1);
+        manager.createSubtask(sub1);
+        final List<Task> tasksCheck = List.of(task1);
+        final List<Subtask> subCheck = List.of(sub1);
+        final List<Epic> epicCheck = List.of(epic1);
         // When
         FileBackedTasksManager loadManager = FileBackedTasksManager.loadFromFile(path);
         final List<Epic> epicLoad = loadManager.getEpics();

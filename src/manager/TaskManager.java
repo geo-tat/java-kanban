@@ -1,11 +1,10 @@
-package Manager;
+package manager;
 
 
-import TaskType.Epic;
-import TaskType.Subtask;
-import TaskType.Task;
+import taskType.Epic;
+import taskType.Subtask;
+import taskType.Task;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public interface TaskManager {

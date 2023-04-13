@@ -1,8 +1,8 @@
-package Manager;
+package manager;
 
-import Exceptions.ManagerLoadException;
-import Exceptions.ManagerSaveException;
-import TaskType.*;
+import exceptions.ManagerLoadException;
+import exceptions.ManagerSaveException;
+import taskType.*;
 
 import java.io.*;
 import java.time.Duration;

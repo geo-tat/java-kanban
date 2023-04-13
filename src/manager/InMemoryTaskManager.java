@@ -1,12 +1,11 @@
-package Manager;
+package manager;
 
-import Exceptions.TaskIntersectionException;
-import TaskType.Epic;
-import TaskType.Status;
-import TaskType.Subtask;
-import TaskType.Task;
+import exceptions.TaskIntersectionException;
+import taskType.Epic;
+import taskType.Status;
+import taskType.Subtask;
+import taskType.Task;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;

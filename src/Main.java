@@ -1,9 +1,9 @@
-import Manager.Managers;
-import Manager.TaskManager;
-import TaskType.Epic;
-import TaskType.Status;
-import TaskType.Subtask;
-import TaskType.Task;
+import manager.Managers;
+import manager.TaskManager;
+import taskType.Epic;
+import taskType.Status;
+import taskType.Subtask;
+import taskType.Task;
 
 import java.util.ArrayList;
 

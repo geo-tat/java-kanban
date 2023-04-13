@@ -1,7 +1,5 @@
-package TaskType;
+package taskType;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class Subtask extends Task {
