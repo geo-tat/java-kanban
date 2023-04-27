@@ -4,7 +4,7 @@ import java.time.format.DateTimeFormatter;
 
 public class Subtask extends Task {
     private Integer epicID;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd Время HH-mm");
+
     public Subtask(Integer id, String name, String description, Status status, Integer epicID) {
 
         super(id, name, description, status);

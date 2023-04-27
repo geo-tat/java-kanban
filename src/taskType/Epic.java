@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class Epic extends Task {
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd Время HH-mm");
+
     List<Integer> subtasksID;
     LocalDateTime endTime;
 

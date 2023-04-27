@@ -655,4 +655,13 @@ abstract class TaskManagerTest<T extends TaskManager> {
         Assertions.assertThrows(TaskIntersectionException.class, () -> manager.createTask(task2));
     }
 
+    @Test
+    void test() {
+        manager.createTask(task1);
+        manager.createTask(task2);
+
+        assertEquals(2,manager.getPrioritizedTasks().size());
+        assertTrue(manager.getPrioritizedTasks().contains(task1));
+        assertTrue(manager.getPrioritizedTasks().contains(task2));
+    }
 }

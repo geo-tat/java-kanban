@@ -1,3 +1,5 @@
 id,type,name,status,description,startTime,duration,epic
-1,TASK,Wake up,NEW,ТАСК 1,2022-01-01T12:00,PT1H40M
+1,EPIC,Epic-1,NEW,description,null,null
+2,SUBTASK,Subtask-1,NEW,description,null,null,1
 
+1,2

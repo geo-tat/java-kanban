@@ -175,36 +175,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     public static void main(String[] args) {
 
-        TaskManager manager = Managers.getDefaultFile(new File("resources\\history.csv"));
-
-
-        Task task01 = new Task(0, "Wake up", "ТАСК 1", Status.NEW);                                  // 2
-        Task task02 = new Task(0, "Read news", "ТАСК 2", Status.NEW);                                // 3
-        task01.setStartTime(LocalDateTime.of(2022,1,1,12,0));
-        task01.setDuration(Duration.ofMinutes(100));
-        task02.setStartTime(LocalDateTime.of(2022,1,1,13,0));
-
-        manager.createTask(task01);
-        manager.createTask(task02);
-
-        //   manager.createSubtask(subtask01);
-
-
-        //   System.out.println(manager.getTaskById(2));
-        //   System.out.println(manager.getEpicById(1));
-        //  System.out.println(manager.getSubtaskById(7));
-        //  System.out.println(manager.getSubtaskById(7));
-        //   System.out.println("History:" + manager.getHistory());
-
-        File file = new File("resources/history.csv");
-        FileBackedTasksManager managerLoad = loadFromFile(file);
-        // System.out.println("History after load: " + managerLoad.getHistory());
-        //  System.out.println(managerLoad.getTasks());
-        //  System.out.println(managerLoad.getEpics());
-        // System.out.println(managerLoad.getSubtasks());
-        System.out.println("WELL DONE");
-        System.out.println(manager.getPrioritizedTasks());
-       // System.out.println(manager.getEpicById(1).getEndTime());
 
     }
 

@@ -65,7 +65,8 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
         manager.getEpicById(1);
         List<Epic>epicCheck = List.of(epic1);
         // When
-        FileBackedTasksManager loadManager = FileBackedTasksManager.loadFromFile(path);final List<Epic> epicLoad = loadManager.getEpics();
+        FileBackedTasksManager loadManager = FileBackedTasksManager.loadFromFile(path);
+        final List<Epic> epicLoad = loadManager.getEpics();
 
         // Then
         assertNotNull(loadManager);

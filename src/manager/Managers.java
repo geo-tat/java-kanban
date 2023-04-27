@@ -1,13 +1,15 @@
 package manager;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 
 public class Managers {
 
 
-   public static TaskManager getDefault() {
+   public static TaskManager getDefault() throws IOException, InterruptedException {
 
-        return new InMemoryTaskManager();
+        return  new HttpTaskManager("http://localhost:8070");                      // new InMemoryTaskManager();
     }
 
     public static HistoryManager getDefaultHistory() {
@@ -15,7 +17,11 @@ public class Managers {
        return new InMemoryHistoryManager();
     }
 
-    public static TaskManager getDefaultFile(File path) {
-       return new FileBackedTasksManager(path);
+    public static TaskManager getDefaultFile() {
+       return new FileBackedTasksManager(new File("resources\\history.csv"));
+    }
+
+    public static HttpTaskManager getDefaultHttpManager() throws IOException, InterruptedException {
+        return new HttpTaskManager("http://localhost:8070");
     }
 }

@@ -14,10 +14,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     protected int currentID;
 
-    protected final Map<Integer, Task> tasks = new HashMap<>();
-    protected final Map<Integer, Epic> epics = new HashMap<>();
-    protected final Map<Integer, Subtask> subtasks = new HashMap<>();
-    protected final TreeSet<Task> prioritizedTask = new TreeSet<>(new Comparator<Task>() {
+    protected Map<Integer, Task> tasks = new HashMap<>();
+    protected Map<Integer, Epic> epics = new HashMap<>();
+    protected Map<Integer, Subtask> subtasks = new HashMap<>();
+    protected TreeSet<Task> prioritizedTask = new TreeSet<>(new Comparator<Task>() {
         @Override
         public int compare(Task t1, Task t2) {
             if (t1.getStartTime() == null && t2.getStartTime() != null) {
@@ -187,6 +187,7 @@ public class InMemoryTaskManager implements TaskManager {
             subtask.setId(currentID);
             subtasks.put(currentID, subtask);
             epics.get(subtask.getEpicID()).getSubtasksID().add(subtask.getId());
+
             updateEpicStatus(subtask.getEpicID());
             timeCalculationForEpic(subtask.getEpicID());
         } else {
@@ -347,7 +348,7 @@ public class InMemoryTaskManager implements TaskManager {
             LocalDateTime endEpic = null;
             for (Integer id : epicSubs) {
                 Subtask sub = subtasks.get(id);
-                if(sub==null) {
+                if (sub == null) {
                     break;
                 }
                 if (sub.getStartTime() != null) {
@@ -378,7 +379,7 @@ public class InMemoryTaskManager implements TaskManager {
                 epic.setDuration(epicDuration);
             }
         } else {
-                 throw new RuntimeException("Отсутствуют подзадачи!");
+            throw new RuntimeException("Отсутствуют подзадачи!");
         }
     }
 }
