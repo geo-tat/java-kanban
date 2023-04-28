@@ -22,7 +22,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     public void save() {
-        try (Writer fileWriter = new FileWriter(path)) {         // "resources/history.csv"
+        try (Writer fileWriter = new FileWriter(path)) {
 
             fileWriter.write("id,type,name,status,description,startTime,duration,epic" + "\n");
 

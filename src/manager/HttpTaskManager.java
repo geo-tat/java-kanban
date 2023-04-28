@@ -2,12 +2,12 @@ package manager;
 
 import api.KVTaskClient;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import config.TaskGsonBuilder;
 import taskType.Epic;
 import taskType.Subtask;
 import taskType.Task;
-
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -15,21 +15,17 @@ import java.util.*;
 public class HttpTaskManager extends FileBackedTasksManager {
     KVTaskClient client;
     Gson gson = TaskGsonBuilder.getGson();
-    public Type taskListType = new TypeToken<List<Task>>() {
-    }.getType();
 
-    public Type taskMapType = new TypeToken<Map<Integer, Task>>() {
+    private final Type taskMapType = new TypeToken<Map<Integer, Task>>() {
 
     }.getType();
-    public Type subtaskMapType = new TypeToken<Map<Integer, Subtask>>() {
+    private final Type subtaskMapType = new TypeToken<Map<Integer, Subtask>>() {
 
     }.getType();
 
-    public Type epicMapType = new TypeToken<Map<Integer, Epic>>() {
+    private final Type epicMapType = new TypeToken<Map<Integer, Epic>>() {
     }.getType();
 
-    public Type priorityType = new TypeToken<TreeSet<Task>>() {
-    }.getType();
 
     public HttpTaskManager(String url) throws IOException, InterruptedException {
         super(null);
@@ -44,8 +40,10 @@ public class HttpTaskManager extends FileBackedTasksManager {
         Map<Integer, Task> taskMap = new HashMap<>(tasks);
         Map<Integer, Subtask> subtaskMap = new HashMap<>(subtasks);
         Map<Integer, Epic> epicMap = new HashMap<>(epics);
-        Set<Task> taskTreeSet = new TreeSet<>(prioritizedTask);
-        List<Task> history = new ArrayList<>(historyManager.getHistory());
+        List<Integer> history = new ArrayList<>();
+        for (Task t : historyManager.getHistory()) {
+            history.add(t.getId());
+        }
         try {
             client.put("task", gson.toJson(taskMap));
         } catch (IOException | InterruptedException e) {
@@ -65,12 +63,6 @@ public class HttpTaskManager extends FileBackedTasksManager {
         }
 
         try {
-            client.put("prioritized", gson.toJson(taskTreeSet));
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-        try {
             client.put("history", gson.toJson(history));
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
@@ -78,30 +70,56 @@ public class HttpTaskManager extends FileBackedTasksManager {
     }
 
     public void loadFromServer() throws IOException, InterruptedException {
-        String taskJson = gson.fromJson(client.load("task"), taskMapType);
-        if(taskJson !=null) {
-            tasks = gson.fromJson(client.load("task"), taskMapType);
-        }
-        String subJson = gson.fromJson(client.load("task"), subtaskMapType);
-        if(subJson !=null) {
-            subtasks = gson.fromJson(client.load("task"), subtaskMapType);
-        }
-        String epicJson = gson.fromJson(client.load("epic"), epicMapType);
-        if(epicJson !=null) {
-            epics = gson.fromJson(client.load("epic"), epicMapType);
-        }
-        String prioritizedJson = gson.fromJson(client.load("prioritized"), priorityType);
-        if( prioritizedJson !=null) {
-            prioritizedTask = gson.fromJson(client.load("prioritized"), priorityType);
-        }
+        int loadID = 0;
+        try {
+            String taskJson = client.load("task");
+            if (taskJson != null) {
+                Map<Integer, Task> taskMap = gson.fromJson(taskJson, taskMapType);
+                tasks.putAll(taskMap);
+                for (Map.Entry<Integer, Task> entry : tasks.entrySet()) {
+                    prioritizedTask.add(entry.getValue());
+                    loadID = Math.max(loadID, entry.getKey());
+                }
+            }
+            String subJson = (client.load("subtask"));
+            if (subJson != null) {
+                Map<Integer, Subtask> subtaskMap = gson.fromJson(subJson, subtaskMapType);
+                subtasks.putAll(subtaskMap);
+                for (Map.Entry<Integer, Subtask> entry : subtasks.entrySet()) {
+                    prioritizedTask.add(entry.getValue());
+                    loadID = Math.max(loadID, entry.getKey());
+                }
+            }
+            String epicJson = (client.load("epic"));
+            if (epicJson != null) {
+                Map<Integer,Epic> epicMap = gson.fromJson(epicJson, epicMapType);
+                epics.putAll(epicMap);
+                for(Map.Entry<Integer,Epic> entry : epics.entrySet()) {
+                    prioritizedTask.add(entry.getValue());
+                    loadID = Math.max(loadID, entry.getKey());
+                }
+            }
 
-        HistoryManager manager = Managers.getDefaultHistory();
-        List<Task> history = gson.fromJson(client.load("history"), taskListType);
-       if(history !=null) {
-           for (Task task : history) {
-               manager.add(task);
-           }
-       }
-
+            String historyJson = (client.load("history"));
+            if (historyJson != null) {
+                List<Integer> history = gson.fromJson(historyJson,new TypeToken<List<Integer>>(){}.getType());
+                if (history != null) {
+                    for (Integer id : history) {
+                        if (tasks.containsKey(id)) {
+                            historyManager.add(tasks.get(id));
+                        }
+                        if (subtasks.containsKey(id)) {
+                            historyManager.add(subtasks.get(id));
+                        }
+                        if (epics.containsKey(id)) {
+                            historyManager.add(epics.get(id));
+                        }
+                    }
+                }
+            }
+        } catch (JsonSyntaxException e) {
+            System.out.println("Данные на сервере отсутствуют");
+        }
+        currentID = loadID;
     }
 }

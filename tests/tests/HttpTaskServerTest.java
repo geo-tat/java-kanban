@@ -196,7 +196,7 @@ class HttpTaskServerTest {
         HttpResponse<String> responseRemoveTaskById = client.send(requestRemoveTaskById,
                 HttpResponse.BodyHandlers.ofString());
         // Then
-        assertEquals(204, responseRemoveTaskById.statusCode());
+        assertEquals(404, responseRemoveTaskById.statusCode());
     }
 
     @Test
@@ -355,7 +355,7 @@ class HttpTaskServerTest {
         HttpResponse<String> responseRemoveEpicById = client.send(requestRemoveEpicById,
                 HttpResponse.BodyHandlers.ofString());
         // Then
-        assertEquals(204, responseRemoveEpicById.statusCode());
+        assertEquals(404, responseRemoveEpicById.statusCode());
     }
 
     @Test
@@ -532,7 +532,7 @@ class HttpTaskServerTest {
         HttpResponse<String> responseRemoveSubById = client.send(requestRemoveSubById,
                 HttpResponse.BodyHandlers.ofString());
         // Then
-        assertEquals(204, responseRemoveSubById.statusCode());
+        assertEquals(404, responseRemoveSubById.statusCode());
     }
 
     @Test

@@ -56,21 +56,13 @@ public class HttpTaskServer {
         if (method.equals("GET")) {
             List<Task> prioritized = manager.getPrioritizedTasks();
             if (!prioritized.isEmpty()) {
-                httpExchange.sendResponseHeaders(200, 0);          // выдан список
-                String response = gson.toJson(prioritized);
-                try (OutputStream os = httpExchange.getResponseBody()) {
-                    os.write(response.getBytes(StandardCharsets.UTF_8));
-                }
+                replySuccess(httpExchange, gson.toJson(prioritized), 200);              // выдан список
             } else {
-                httpExchange.sendResponseHeaders(204, -1);          // список пуст
-                String response = "Список пуст!";
-                try (OutputStream os = httpExchange.getResponseBody()) {
-                    os.write(response.getBytes(StandardCharsets.UTF_8));
-                }
+                replyError(httpExchange, "Список пуст!", 204);
             }
             httpExchange.close();
         } else {
-            httpExchange.sendResponseHeaders(405, 0);
+            replyError(httpExchange, "Используйте только GET метод", 501);
             httpExchange.close();
         }
     }
@@ -80,27 +72,16 @@ public class HttpTaskServer {
         if (method.equals("GET")) {
             List<Task> history = manager.getHistory();
             if (!history.isEmpty()) {
-                httpExchange.sendResponseHeaders(200, 0);          // выдан список
-                String response = gson.toJson(history);
-                try (OutputStream os = httpExchange.getResponseBody()) {
-                    os.write(response.getBytes(StandardCharsets.UTF_8));
-                }
+                replySuccess(httpExchange, gson.toJson(history), 200);                  // выдан список
             } else {
-                httpExchange.sendResponseHeaders(204, -1);          // выдан список
-                String response = "История просмотров задач пуста!";
-                try (OutputStream os = httpExchange.getResponseBody()) {
-                    os.write(response.getBytes(StandardCharsets.UTF_8));
-                }
+                replyError(httpExchange, "История просмотров задач пуста!", 204);
+
             }
             httpExchange.close();
         } else {
-            httpExchange.sendResponseHeaders(405, 0);
+            replyError(httpExchange, "Используйте только GET метод", 501);
             httpExchange.close();
         }
-    }
-
-
-    public static void main(String[] args) throws IOException, InterruptedException {
     }
 
     private void taskHandle(HttpExchange httpExchange) throws IOException {
@@ -113,16 +94,9 @@ public class HttpTaskServer {
                 if (idParameter == null) {
                     List<Task> list = manager.getTasks();
                     if (list.isEmpty()) {
-                        httpExchange.sendResponseHeaders(204, -1);
-
-                    } else if (list != null) {
-                        httpExchange.sendResponseHeaders(200, 0);
-                        String response = gson.toJson(list);
-                        try (OutputStream os = httpExchange.getResponseBody()) {
-                            os.write(response.getBytes(StandardCharsets.UTF_8));
-                        }
+                        replyError(httpExchange, "Список пуст!", 204);
                     } else {
-                        httpExchange.sendResponseHeaders(400, 0);
+                        replySuccess(httpExchange, gson.toJson(list), 200);
                     }
                 } else {
                     if (idParameter.contains("id=")) {
@@ -130,20 +104,13 @@ public class HttpTaskServer {
                         int id = Integer.parseInt(strings[1]);
                         Task task = manager.getTaskById(id);
                         if (task != null) {
-                            httpExchange.sendResponseHeaders(200, 0);
-                            String response = gson.toJson(task);
-                            try (OutputStream os = httpExchange.getResponseBody()) {
-                                os.write(response.getBytes(StandardCharsets.UTF_8));
-                            }
+                            replySuccess(httpExchange, gson.toJson(task), 200);
                         } else {
-                            String response = "Такого ID не существует";
-                            httpExchange.sendResponseHeaders(404, 0);
-                            try (OutputStream os = httpExchange.getResponseBody()) {
-                                os.write(response.getBytes(StandardCharsets.UTF_8));
-                            }
+                            replyError(httpExchange, "Такого ID не существует", 404);
                         }
                     } else {
-                        httpExchange.sendResponseHeaders(400, 0);
+                        replyError(httpExchange, "Неправильно составлен запрос", 400);
+
                     }
                 }
                 httpExchange.close();
@@ -152,30 +119,18 @@ public class HttpTaskServer {
                 InputStream inputStream = httpExchange.getRequestBody();
                 String requestBody = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
                 Task oldTask = gson.fromJson(requestBody, Task.class);
-                if (oldTask != null & oldTask.getId() == 0) {
+                if (oldTask != null && oldTask.getId() == 0) {
                     Task newTask = manager.createTask(oldTask);
-                    String response = gson.toJson(newTask);
-                    httpExchange.sendResponseHeaders(201, 0);           // задача создана
-                    try (OutputStream os = httpExchange.getResponseBody()) {
-                        os.write(response.getBytes(StandardCharsets.UTF_8));
-                    }
+                    replySuccess(httpExchange, gson.toJson(newTask), 201);            // задача создана
                 } else if (oldTask.getId() != 0) {
                     boolean isUpdated = manager.updateTask(oldTask);
                     if (isUpdated) {
-                        String response = gson.toJson(true);
-                        httpExchange.sendResponseHeaders(202, 0);        // условие true, задача обновлена
-                        try (OutputStream os = httpExchange.getResponseBody()) {
-                            os.write(response.getBytes(StandardCharsets.UTF_8));
-                        }
+                        replySuccess(httpExchange, gson.toJson(true), 202);
                     } else {
-                        String response = gson.toJson(false);
-                        httpExchange.sendResponseHeaders(412, 0);    // условие false
-                        try (OutputStream os = httpExchange.getResponseBody()) {
-                            os.write(response.getBytes(StandardCharsets.UTF_8));
-                        }
+                        replyError(httpExchange, gson.toJson(false), 202);       // пришел false
                     }
                 } else {
-                    httpExchange.sendResponseHeaders(400, 0);
+                    replyError(httpExchange, "Неправильно составлен запрос", 400);
                 }
                 httpExchange.close();
                 break;
@@ -183,34 +138,22 @@ public class HttpTaskServer {
             case "DELETE":
                 if (idParameter == null) {
                     manager.removeAllTasks();
-                    String response = "Все задачи удалены!";
-                    httpExchange.sendResponseHeaders(200, 0);
-                    try (OutputStream os = httpExchange.getResponseBody()) {
-                        os.write(response.getBytes(StandardCharsets.UTF_8));
-                    }
+                    replySuccess(httpExchange, "Все задачи удалены.", 200);
                 } else {
                     String[] words = idParameter.split("=");
                     int id = Integer.parseInt(words[1]);
                     Task task = manager.getTaskById(id);
                     if (task == null) {
-                        String response = "Задачи с этим ID не существует";
-                        httpExchange.sendResponseHeaders(204, -1);
-                        try (OutputStream os = httpExchange.getResponseBody()) {
-                            os.write(response.getBytes(StandardCharsets.UTF_8));
-                        }
+                        replyError(httpExchange, "Задачи с этим ID не существует!", 404);
                     } else {
                         manager.removeTaskById(id);
-                        String response = "Задача удалена!";
-                        httpExchange.sendResponseHeaders(200, 0);
-                        try (OutputStream os = httpExchange.getResponseBody()) {
-                            os.write(response.getBytes(StandardCharsets.UTF_8));
-                        }
+                        replySuccess(httpExchange, "Задача удалена.", 200);
                     }
                 }
                 httpExchange.close();
                 break;
             default:
-                httpExchange.sendResponseHeaders(501, 0);
+                replyError(httpExchange, "Реализация находится в разработке.", 501);
                 httpExchange.close();
                 break;
         }
@@ -227,33 +170,21 @@ public class HttpTaskServer {
                 if (idParameter == null) {
                     List<Subtask> list = manager.getSubtasks();
                     if (list.isEmpty()) {
-                        httpExchange.sendResponseHeaders(204, -1);
+                        replyError(httpExchange, "Список пуст!", 204);
                     }
-                    if (list != null) {
-                        httpExchange.sendResponseHeaders(200, 0);
-                        String response = gson.toJson(list);
-                        try (OutputStream os = httpExchange.getResponseBody()) {
-                            os.write(response.getBytes(StandardCharsets.UTF_8));
-                        }
-                    } else {
-                        httpExchange.sendResponseHeaders(204, -1);
-                    }
+                    replySuccess(httpExchange, gson.toJson(list), 200);
                 } else {
                     if (idParameter.contains("id=")) {
                         String[] strings = idParameter.split("=");
                         int id = Integer.parseInt(strings[1]);
                         Subtask subTask = manager.getSubtaskById(id);
                         if (subTask != null) {
-                            httpExchange.sendResponseHeaders(200, 0);
-                            String response = gson.toJson(subTask);
-                            try (OutputStream os = httpExchange.getResponseBody()) {
-                                os.write(response.getBytes(StandardCharsets.UTF_8));
-                            }
+                            replySuccess(httpExchange, gson.toJson(subTask), 200);
                         } else {
-                            httpExchange.sendResponseHeaders(404, 0);
+                            replyError(httpExchange, "Задачи с этим ID не существует!", 404);
                         }
                     } else {
-                        httpExchange.sendResponseHeaders(400, 0);
+                        replyError(httpExchange, "Неправильно составлен запрос", 400);
                     }
                 }
                 httpExchange.close();
@@ -262,30 +193,18 @@ public class HttpTaskServer {
                 InputStream inputStream = httpExchange.getRequestBody();
                 String requestBody = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
                 Subtask oldSub = gson.fromJson(requestBody, Subtask.class);
-                if (oldSub != null & oldSub.getId() == 0) {
+                if (oldSub != null && oldSub.getId() == 0) {
                     Subtask newSub = manager.createSubtask(oldSub);
-                    String response = gson.toJson(newSub);
-                    httpExchange.sendResponseHeaders(201, 0);           // задача создана
-                    try (OutputStream os = httpExchange.getResponseBody()) {
-                        os.write(response.getBytes(StandardCharsets.UTF_8));
-                    }
+                    replySuccess(httpExchange, gson.toJson(newSub), 201);              // задача создана
                 } else if (oldSub.getId() != 0) {
                     boolean isUpdated = manager.updateSubtask(oldSub);
                     if (isUpdated) {
-                        String response = gson.toJson(true);
-                        httpExchange.sendResponseHeaders(202, 0);        // условие true, задача обновлена
-                        try (OutputStream os = httpExchange.getResponseBody()) {
-                            os.write(response.getBytes(StandardCharsets.UTF_8));
-                        }
+                        replySuccess(httpExchange, gson.toJson(true), 202);     // условие true задача обновлена
                     } else {
-                        String response = gson.toJson(false);
-                        httpExchange.sendResponseHeaders(412, 0);    // условие false
-                        try (OutputStream os = httpExchange.getResponseBody()) {
-                            os.write(response.getBytes(StandardCharsets.UTF_8));
-                        }
+                        replySuccess(httpExchange, "Не получилось обновить задачу.", 202);    // условие false
                     }
                 } else {
-                    httpExchange.sendResponseHeaders(400, 0);
+                    replyError(httpExchange, "Неправильно составлен запрос", 400);
                 }
                 httpExchange.close();
                 break;
@@ -303,24 +222,16 @@ public class HttpTaskServer {
                     int id = Integer.parseInt(words[1]);
                     Subtask sub = manager.getSubtaskById(id);
                     if (sub == null) {
-                        String response = "Подзадачи с этим ID не существует";
-                        httpExchange.sendResponseHeaders(204, -1);
-                        try (OutputStream os = httpExchange.getResponseBody()) {
-                            os.write(response.getBytes(StandardCharsets.UTF_8));
-                        }
+                        replyError(httpExchange, "Подзадачи с этим ID не существует!", 404);
                     } else {
                         manager.removeSubtaskById(id);
-                        String response = "Подзадача удалена!";
-                        httpExchange.sendResponseHeaders(200, 0);
-                        try (OutputStream os = httpExchange.getResponseBody()) {
-                            os.write(response.getBytes(StandardCharsets.UTF_8));
-                        }
+                        replySuccess(httpExchange, "Подзадача удалена!", 200);
                     }
                 }
                 httpExchange.close();
                 break;
             default:
-                httpExchange.sendResponseHeaders(501, 0);
+                replyError(httpExchange, "Реализация находится в разработке.", 501);
                 httpExchange.close();
                 break;
         }
@@ -335,33 +246,21 @@ public class HttpTaskServer {
                 if (idParameter == null) {
                     List<Epic> list = manager.getEpics();
                     if (list.isEmpty()) {
-                        httpExchange.sendResponseHeaders(204, -1);
+                        replyError(httpExchange, "Список пуст!", 204);
                     }
-                    if (list != null) {
-                        String response = gson.toJson(list);
-                        httpExchange.sendResponseHeaders(200, 0);
-                        try (OutputStream os = httpExchange.getResponseBody()) {
-                            os.write(response.getBytes(StandardCharsets.UTF_8));
-                        }
-                    } else {
-                        httpExchange.sendResponseHeaders(204, -1);
-                    }
+                    replySuccess(httpExchange, gson.toJson(list), 200);
                 } else {
                     if (idParameter.contains("id=")) {
                         String[] strings = idParameter.split("=");
                         int id = Integer.parseInt(strings[1]);
                         Epic epic = manager.getEpicById(id);
                         if (epic != null) {
-                            httpExchange.sendResponseHeaders(200, 0);
-                            String response = gson.toJson(epic);
-                            try (OutputStream os = httpExchange.getResponseBody()) {
-                                os.write(response.getBytes(StandardCharsets.UTF_8));
-                            }
+                            replySuccess(httpExchange, gson.toJson(epic), 200);
                         } else {
-                            httpExchange.sendResponseHeaders(404, 0);
+                            replyError(httpExchange, "Эпика с этим ID не существует!", 404);
                         }
                     } else {
-                        httpExchange.sendResponseHeaders(400, 0);
+                        replyError(httpExchange, "Неправильно составлен запрос", 400);
                     }
                 }
                 httpExchange.close();
@@ -369,72 +268,43 @@ public class HttpTaskServer {
             case "POST":
                 InputStream inputStream = httpExchange.getRequestBody();
                 String requestBody = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-
                 Epic oldEpic = gson.fromJson(requestBody, Epic.class);
-
-
-                if (oldEpic != null & oldEpic.getId() == 0) {
+                if (oldEpic != null && oldEpic.getId() == 0) {
                     Epic newEpic = manager.createEpic(oldEpic);
-                    String response = gson.toJson(newEpic);
-                    httpExchange.sendResponseHeaders(201, 0);           // задача создана
-                    try (OutputStream os = httpExchange.getResponseBody()) {
-                        os.write(response.getBytes(StandardCharsets.UTF_8));
-                    }
-
+                    replySuccess(httpExchange, gson.toJson(newEpic), 201);        // эпик создан
                 } else if (oldEpic.getId() != 0) {
                     boolean isUpdated = manager.updateEpic(oldEpic);
                     if (isUpdated) {
-                        String response = gson.toJson(true);
-                        httpExchange.sendResponseHeaders(202, 0);        // условие true, задача обновлена
-                        try (OutputStream os = httpExchange.getResponseBody()) {
-                            os.write(response.getBytes(StandardCharsets.UTF_8));
-                        }
+                        replySuccess(httpExchange, gson.toJson(true), 202);
                     } else {
-                        String response = gson.toJson(false);
-                        httpExchange.sendResponseHeaders(412, 0);    // условие false
-                        try (OutputStream os = httpExchange.getResponseBody()) {
-                            os.write(response.getBytes(StandardCharsets.UTF_8));
-                        }
+                        replySuccess(httpExchange, "Не удалось обновить эпик", 202);
                     }
                 } else {
-                    httpExchange.sendResponseHeaders(400, 0);
+                    replyError(httpExchange, "Неправильно составлен запрос", 400);
                 }
                 httpExchange.close();
-
-
                 break;
 
             case "DELETE":
                 if (idParameter == null) {
                     manager.removeAllEpics();
-                    String response = "Все эпики удалены!";
-                    httpExchange.sendResponseHeaders(200, 0);
-                    try (OutputStream os = httpExchange.getResponseBody()) {
-                        os.write(response.getBytes(StandardCharsets.UTF_8));
-                    }
+                    replySuccess(httpExchange, "Все эпики удалены.", 200);
                 } else {
                     String[] words = idParameter.split("=");
                     int id = Integer.parseInt(words[1]);
                     Epic epic = manager.getEpicById(id);
                     if (epic == null) {
-                        String response = "Эпика с этим ID не существует";
-                        httpExchange.sendResponseHeaders(204, -1);
-                        try (OutputStream os = httpExchange.getResponseBody()) {
-                            os.write(response.getBytes(StandardCharsets.UTF_8));
-                        }
+                        replyError(httpExchange, "Задачи с этим ID не существует!", 404);
                     } else {
                         manager.removeEpicForId(id);
-                        String response = "Эпик удален!";
-                        httpExchange.sendResponseHeaders(200, 0);
-                        try (OutputStream os = httpExchange.getResponseBody()) {
-                            os.write(response.getBytes(StandardCharsets.UTF_8));
-                        }
+                        replySuccess(httpExchange, "Эпик удален.", 200);
+
                     }
                 }
                 httpExchange.close();
                 break;
             default:
-                httpExchange.sendResponseHeaders(501, 0);
+                replyError(httpExchange, "Реализация находится в разработке.", 501);
                 httpExchange.close();
                 break;
         }
@@ -452,32 +322,41 @@ public class HttpTaskServer {
                     int id = Integer.parseInt(strings[1]);
                     List<Subtask> list = manager.getSubtasksForEpic(id);
                     if (list != null) {
-                        httpExchange.sendResponseHeaders(200, 0);
-                        String response = gson.toJson(list);
-                        try (OutputStream os = httpExchange.getResponseBody()) {
-                            os.write(response.getBytes(StandardCharsets.UTF_8));
-                        }
+                        replySuccess(httpExchange, gson.toJson(list), 200);
                     } else {
-                        httpExchange.sendResponseHeaders(404, 0); //задачи не существует
+                        replyError(httpExchange, "У данного эпика нет подзадач", 204);
                     }
                 } else {
-                    httpExchange.sendResponseHeaders(400, 0);
+                    replyError(httpExchange, "Неправильно составлен запрос", 400);
                 }
                 httpExchange.close();
                 break;
             case "POST":
             case "DELETE":
-                httpExchange.sendResponseHeaders(405, 0);
-                String response = "Выполнение запроса невозможно!";
-                try (OutputStream os = httpExchange.getResponseBody()) {
-                    os.write(response.getBytes(StandardCharsets.UTF_8));
-                }
+                replyError(httpExchange, "Выполнение запроса невозможно!", 405);
                 httpExchange.close();
                 break;
             default:
-                httpExchange.sendResponseHeaders(400, 0);
+                replyError(httpExchange, "Неправильно составлен запрос", 400);
                 httpExchange.close();
                 break;
+        }
+    }
+
+    private void replySuccess(HttpExchange httpExchange, String text, int code) throws IOException {
+        replyText(httpExchange, text, code, "application/json");
+    }
+
+    private void replyError(HttpExchange httpExchange, String text, int code) throws IOException {
+        replyText(httpExchange, text, code, "text/plain");
+    }
+
+    private void replyText(HttpExchange httpExchange, String text, int code, String type) throws IOException {
+        httpExchange.getResponseHeaders().add("Content-Type", type);
+        byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
+        httpExchange.sendResponseHeaders(code, bytes.length);
+        try (OutputStream os = httpExchange.getResponseBody()) {
+            os.write(bytes);
         }
     }
 

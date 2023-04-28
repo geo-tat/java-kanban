@@ -13,6 +13,7 @@ public class KVTaskClient {
     public KVTaskClient(String apiUrl) throws IOException, InterruptedException {
         this.apiUrl = apiUrl;
         this.apiToken = register();
+
     }
 
     public void put(String key, String json) throws IOException, InterruptedException {
@@ -35,7 +36,13 @@ public class KVTaskClient {
                 .GET()
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        return response.body();
+           if(response.statusCode() == 200) {
+
+            return response.body();
+        } else {
+            return "Что то пошло не так. Код ошибки: " + response.statusCode();
+        }
+
     }
 
     private String register() throws IOException, InterruptedException {
